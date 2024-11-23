@@ -85,7 +85,7 @@ export class FarmPlotGA {
    * Used in creating initial population and mutations.
    */
   private generateValidCropPair(): [number, number] {
-    let crop1_index = Math.floor(Math.random() * cropOptions.length);
+    const crop1_index = Math.floor(Math.random() * cropOptions.length);
     let crop2_index;
     do {
       crop2_index = Math.floor(Math.random() * cropOptions.length);
