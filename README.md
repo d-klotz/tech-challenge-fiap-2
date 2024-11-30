@@ -1,97 +1,60 @@
 # Alocação de Terreno Agrícola
 
-**Layout de Implementação: Alocação de Terreno Agrícola para 2 Culturas Usando Abordagem Knapsack**
+**Otimização de Alocação de Culturas usando Algoritmo Genético**
 
-**Visão Geral do Cenário**
+## Visão Geral
 
-O agricultor possui 10 acres de terra agrícola e um tempo máximo fixo de crescimento de cultura de 260 dias. De 10 culturas disponíveis, o objetivo é determinar as 10 melhores combinações de **duas culturas** que maximizam o lucro (rendimento total). A solução deve respeitar as restrições de espaço e tempo de crescimento.
+Este projeto implementa um algoritmo genético para otimizar a alocação de duas culturas em uma área agrícola. O objetivo é maximizar o lucro anual considerando múltiplos fatores como tempo de crescimento, custos, rendimentos e número de colheitas possíveis por ano.
 
-**Plano de Implementação**
+## Características Principais
 
-**1. Definir Dados de Entrada**
+- Otimização através de algoritmo genético
+- Suporte para múltiplas culturas com diferentes características
+- Consideração de múltiplas colheitas por ano
+- Bônus de diversificação para combinações otimizadas
+- Visualização do progresso da evolução
+- Interface web interativa
 
-• **Área Total da Fazenda (10 acres)**: O agricultor pode usar até 10 acres para plantio.
+## Parâmetros do Sistema
 
-• **Culturas (10 tipos)**: Cada cultura possui atributos:
-  - **Espaço necessário por unidade**: Terra necessária para cultivar uma unidade da cultura.
-  - **Custo**: Custo por unidade da cultura.
-  - **Rendimento**: Lucro ou produção por área unitária.
-  - **Tempo de crescimento**: Tempo necessário para a cultura amadurecer.
+### Culturas Disponíveis
+Cada cultura possui os seguintes atributos:
+- Nome
+- Espaço requerido (em acres)
+- Custo por unidade
+- Rendimento por unidade
+- Tempo de crescimento (em dias)
 
-**2. Restrições**
+### Restrições
+- Área total configurável
+- Tempo máximo de crescimento configurável
+- Necessidade de culturas diferentes
+- Mínimo de 1 acre por cultura
 
-• **Limite de Terra**: A terra total alocada para duas culturas não pode exceder 10 acres.
+### Parâmetros do Algoritmo Genético
+- População: 100 indivíduos
+- Taxa de mutação: 20%
+- Gerações: 150
+- Seleção por torneio (5 indivíduos)
+- Elitismo preservando melhor solução
 
-• **Limite de Tempo de Crescimento**: Ambas as culturas devem ter tempos de crescimento que se encaixem em 260 dias.
+## Funcionalidades
 
-• **Combinação de Duas Culturas**: Apenas combinações de duas culturas serão consideradas para alocação.
+1. **Otimização de Alocação**
+   - Encontra as 10 melhores combinações de duas culturas
+   - Maximiza o lucro anual
+   - Considera múltiplas colheitas por ano
 
-**3. Abordagem da Solução**
+2. **Visualização**
+   - Acompanhamento em tempo real do progresso
+   - Gráficos de evolução do fitness
+   - Estatísticas por geração
 
-1. **Gerar Todas as Combinações de Duas Culturas**:
-   - Usar as 10 opções de cultura para gerar todas as **combinações possíveis de 2 culturas**.
-
-2. **Alocar Terra Entre as Duas Culturas**:
-   - Para cada combinação, dividir os 10 acres otimamente entre as duas culturas.
-   - Alocações possíveis incluem:
-     - Cultura 1: X acres, Cultura 2: Y acres (onde X + Y = 10).
-
-3. **Avaliar Cada Alocação**:
-   - Para cada alocação:
-     - Calcular o rendimento total
-     - Calcular o custo total
-     - Verificar restrições:
-       - Terra total ≤ 10 acres
-       - Tempo de crescimento ≤ 260 dias para ambas as culturas
-
-4. **Classificar Combinações por Lucro**:
-   - Ordenar as combinações válidas por lucro total (rendimento).
-   - Manter as **10 melhores combinações** com o maior lucro.
-
-**4. Saída**
-
-• Uma lista classificada das **10 melhores combinações** de duas culturas, mostrando:
-  - Nomes da Cultura 1 e Cultura 2
-  - Acres alocados para cada cultura
-  - Rendimento total (lucro)
-  - Custo total (opcional, para decisões baseadas em custo)
-
-**Exemplo de Saída**
-
-Top 10 Combinações de Culturas:
-
-1. Milho: 6 acres, Soja: 4 acres = 4200 lucro
-2. Arroz: 5 acres, Batata: 5 acres = 4100 lucro
-3. Tomate: 7 acres, Pepino: 3 acres = 4000 lucro
-4. Milho: 5 acres, Arroz: 5 acres = 3900 lucro
-...
-
-**Etapas Principais para Implementação**
-
-1. **Preparação de Dados**:
-   - Definir atributos das culturas (espaço, custo, rendimento, tempo de crescimento)
-
-2. **Gerar Combinações**:
-   - Usar combinações de 2 culturas
-
-3. **Otimizar Alocação**:
-   - Para cada combinação, iterar sobre possíveis divisões de acres e calcular rendimento
-
-4. **Verificação de Restrições**:
-   - Garantir terra total ≤ 10 acres e tempo de crescimento ≤ 260 dias
-
-5. **Classificação**:
-   - Ordenar combinações válidas por lucro total e selecionar as 10 melhores
-
-**Extensões**
-
-• Permitir que o usuário especifique o tempo máximo de crescimento em vez de fixá-lo em 260 dias.
-
-• Adicionar consciência de custo à classificação para encontrar combinações que sejam eficientes em termos de custo.
-
-• Visualizar resultados (por exemplo, usando gráficos para comparar combinações).
-
-Este layout fornece um roteiro claro passo a passo para resolver o problema usando uma abordagem estruturada, aproveitando a metodologia Knapsack e os princípios do Algoritmo Genético.
+3. **Resultados**
+   - Top 10 melhores combinações únicas
+   - Detalhes de alocação por cultura
+   - Lucro anual estimado
+   - Número de colheitas por ano
 
 ## Tecnologias Utilizadas
 
@@ -112,3 +75,26 @@ npm install
 npm run dev
 ```
 4. Acesse `http://localhost:3000` no seu navegador
+
+## Exemplo de Uso
+
+O sistema apresentará as melhores combinações no formato:
+```
+[Cultura1] ([X] colheitas/ano): [Y] acres, 
+[Cultura2] ([X] colheitas/ano): [Y] acres = 
+[Z] lucro/ano
+```
+
+## Estrutura do Projeto
+
+- `src/lib/farmPlotAllocation.ts`: Implementação do algoritmo genético
+- `src/components/GAVisualizer.tsx`: Componente de visualização
+- `src/app/page.tsx`: Página principal da aplicação
+
+## Contribuindo
+
+Contribuições são bem-vindas! Por favor, sinta-se à vontade para submeter pull requests ou abrir issues para melhorias.
+
+## Licença
+
+Este projeto está sob a licença MIT.

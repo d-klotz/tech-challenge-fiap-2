@@ -5,9 +5,15 @@
 export interface CropOption {
   name: string;           // Name of the crop
   space_required: number; // Space required in acres (can be fractional)
-  cost: number;           // Cost per unit to plant and maintain
-  yield: number;          // Expected yield per unit in monetary value
-  growth_time: number;    // Time to harvest in days
+  cost: number;          // Cost per unit to plant and maintain
+  yield: number;         // Expected yield per unit in monetary value
+  growth_time: number;   // Time to harvest in days
+}
+
+export interface GenerationStats {
+  generation: number;
+  bestFitness: number;
+  averageFitness: number;
 }
 
 /**
@@ -79,6 +85,7 @@ export class FarmPlotGA {
   private max_growth_time: number;   // Maximum allowed growth time for crops
   private days_per_year: number;     // Days in a year for harvest calculations
   private cropOptions: CropOption[];  // Available crop options
+  public generationStats: GenerationStats[] = [];
 
   constructor(population_size: number = 100, mutation_rate: number = 0.2, cropOptions: CropOption[], plotSize: number, growthTime: number) {
     this.population_size = population_size;
@@ -87,6 +94,7 @@ export class FarmPlotGA {
     this.max_growth_time = growthTime;
     this.days_per_year = 365;
     this.cropOptions = cropOptions;
+    this.generationStats = [];
   }
 
   /**
@@ -111,8 +119,6 @@ export class FarmPlotGA {
     const population: FarmAllocation[] = [];
     while (population.length < this.population_size) {
       const [crop1_index, crop2_index] = this.generateValidCropPair();
-      const crop1_space = this.cropOptions[crop1_index].space_required;
-      const crop2_space = this.cropOptions[crop2_index].space_required;
 
       // Randomly allocate acres ensuring total acres sum to total_acres
       const min_acres_crop1 = 1;
@@ -267,14 +273,29 @@ export class FarmPlotGA {
    * Implements elitism by keeping the best solution across generations.
    * Returns the top 10 unique solutions found along with their fitness scores.
    */
-  public run(generations: number = 150): { solutions: FarmAllocation[], fitnessScores: number[] } {
+  public async run(generations: number = 150, onGenerationComplete?: (stats: GenerationStats) => void): Promise<{ solutions: FarmAllocation[], fitnessScores: number[] }> {
     let population = this.generateInitialPopulation();
     let best_ever: FarmAllocation | null = null;
     let best_ever_fitness = Number.NEGATIVE_INFINITY;
+    this.generationStats = [];
 
     for (let generation = 0; generation < generations; generation++) {
       const fitness_scores = population.map(ind => this.calculateFitness(ind));
       const current_best_idx = fitness_scores.indexOf(Math.max(...fitness_scores));
+      const average_fitness = fitness_scores.reduce((a, b) => a + b, 0) / fitness_scores.length;
+
+      // Store generation statistics
+      const stats: GenerationStats = {
+        generation,
+        bestFitness: Math.max(...fitness_scores),
+        averageFitness: average_fitness
+      };
+      this.generationStats.push(stats);
+
+      // Notify progress if callback is provided
+      if (onGenerationComplete) {
+        onGenerationComplete(stats);
+      }
 
       // Update best ever solution if current generation has a better one
       if (fitness_scores[current_best_idx] > best_ever_fitness) {
@@ -297,6 +318,9 @@ export class FarmPlotGA {
       }
 
       population = new_population;
+
+      // Add a small delay to allow UI updates
+      await new Promise(resolve => setTimeout(resolve, 0));
     }
 
     // Calculate fitness for all individuals
