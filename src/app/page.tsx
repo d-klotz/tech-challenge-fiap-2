@@ -2,22 +2,50 @@
 
 import { useState } from 'react';
 import { FarmPlotGA, formatSolution, CropOption, cropOptions } from '../lib/farmPlotAllocation';
+import { Trash } from 'lucide-react';
 
 export default function Home() {
   const [results, setResults] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [editableCropOptions, setEditableCropOptions] = useState<CropOption[]>(cropOptions);
+  const [plotSize, setPlotSize] = useState<number>(100);
+  const [growthTime, setGrowthTime] = useState<number>(150);
 
   const runAlgorithm = () => {
     setIsLoading(true);
-    const ga = new FarmPlotGA(100, 0.2);
+    const ga = new FarmPlotGA(100, 0.2, editableCropOptions, plotSize, growthTime);
     const { solutions, fitnessScores } = ga.run(150);
     
     const formattedResults = solutions.map((solution, index) => 
-      formatSolution(solution, fitnessScores[index])
+      formatSolution(solution, fitnessScores[index], editableCropOptions)
     );
     
     setResults(formattedResults);
     setIsLoading(false);
+  };
+
+  const handleSaveChanges = (index: number, crop: CropOption) => {
+    const newCropOptions = [...editableCropOptions];
+    newCropOptions[index] = crop;
+    setEditableCropOptions(newCropOptions);
+  };
+
+  const handleDeleteRow = (index: number) => {
+    const newCropOptions = [...editableCropOptions];
+    newCropOptions.splice(index, 1);
+    setEditableCropOptions(newCropOptions);
+  };
+
+  const handleAddNewCrop = () => {
+    const newCropOptions = [...editableCropOptions];
+    newCropOptions.push({
+      name: '',
+      space_required: 0,
+      cost: 0,
+      yield: 0,
+      growth_time: 0,
+    });
+    setEditableCropOptions(newCropOptions);
   };
 
   return (
@@ -26,6 +54,29 @@ export default function Home() {
         <h1 className="text-3xl font-bold mb-8 text-gray-800">
           Otimizador de Alocação de Terreno Agrícola
         </h1>
+        
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="flex flex-col gap-2">
+            <label className="text-gray-800">Tamanho do terreno:</label>
+            <label className="text-gray-500 text-xs">em acres</label>
+            <input 
+              type="text" 
+              value={plotSize} 
+              onChange={(e) => setPlotSize(Number(e.target.value))}
+              className="w-full p-2 rounded-lg border border-gray-200 text-gray-800"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-gray-800">Tempo de crescimento:</label>
+            <label className="text-gray-500 text-xs">em dias</label>
+            <input 
+              type="text" 
+              value={growthTime} 
+              onChange={(e) => setGrowthTime(Number(e.target.value))}
+              className="w-full p-2 rounded-lg border border-gray-200 text-gray-800"
+            />
+          </div>
+        </div>
         
         <div className="overflow-x-auto bg-white rounded-lg shadow-lg mb-8">
           <table className="w-full table-auto">
@@ -56,10 +107,11 @@ export default function Home() {
                     <span className="text-xs text-gray-300">(dias)</span>
                   </div>
                 </th>
+                <th className="px-6 py-4 text-right font-semibold">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {cropOptions.map((crop: CropOption, index) => (
+              {editableCropOptions.map((crop: CropOption, index) => (
                 <tr 
                   key={index}
                   className={`
@@ -67,13 +119,66 @@ export default function Home() {
                     hover:bg-blue-50 transition-colors duration-150
                   `}
                 >
-                  <td className="px-6 py-4 text-left font-medium text-gray-900">{crop.name}</td>
-                  <td className="px-6 py-4 text-right text-gray-600">{crop.space_required}</td>
-                  <td className="px-6 py-4 text-right text-gray-600">{crop.cost}</td>
-                  <td className="px-6 py-4 text-right text-gray-600">{crop.yield}</td>
-                  <td className="px-6 py-4 text-right text-gray-600">{crop.growth_time}</td>
+                  <td className="px-6 py-4 text-left font-medium text-gray-900">
+                    <input 
+                      type="text" 
+                      value={crop.name} 
+                      onChange={(e) => handleSaveChanges(index, { ...crop, name: e.target.value })}
+                      className="w-full p-2 rounded-lg border border-gray-200"
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-right text-gray-600">
+                    <input 
+                      type="number" 
+                      value={crop.space_required} 
+                      onChange={(e) => handleSaveChanges(index, { ...crop, space_required: Number(e.target.value) })}
+                      className="w-full p-2 rounded-lg border border-gray-200"
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-right text-gray-600">
+                    <input 
+                      type="number" 
+                      value={crop.cost} 
+                      onChange={(e) => handleSaveChanges(index, { ...crop, cost: Number(e.target.value) })}
+                      className="w-full p-2 rounded-lg border border-gray-200"
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-right text-gray-600">
+                    <input 
+                      type="number" 
+                      value={crop.yield} 
+                      onChange={(e) => handleSaveChanges(index, { ...crop, yield: Number(e.target.value) })}
+                      className="w-full p-2 rounded-lg border border-gray-200"
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-right text-gray-600">
+                    <input 
+                      type="number" 
+                      value={crop.growth_time} 
+                      onChange={(e) => handleSaveChanges(index, { ...crop, growth_time: Number(e.target.value) })}
+                      className="w-full p-2 rounded-lg border border-gray-200"
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-right text-gray-600">
+                    <button 
+                      onClick={() => handleDeleteRow(index)} 
+                      className="px-4 py-2 rounded-lg text-white font-semibold bg-red-600 hover:bg-red-700 active:bg-red-800"
+                    >
+                      <Trash size={20} />
+                    </button>
+                  </td>
                 </tr>
               ))}
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center text-gray-600">
+                  <button 
+                    onClick={handleAddNewCrop} 
+                    className="px-4 py-2 rounded-lg text-white font-semibold bg-green-600 hover:bg-green-700 active:bg-green-800"
+                  >
+                    Adicionar nova cultura
+                  </button>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

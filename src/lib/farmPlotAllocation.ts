@@ -5,9 +5,9 @@
 export interface CropOption {
   name: string;           // Name of the crop
   space_required: number; // Space required in acres (can be fractional)
-  cost: number;          // Cost per unit to plant and maintain
-  yield: number;         // Expected yield per unit in monetary value
-  growth_time: number;   // Time to harvest in days
+  cost: number;           // Cost per unit to plant and maintain
+  yield: number;          // Expected yield per unit in monetary value
+  growth_time: number;    // Time to harvest in days
 }
 
 /**
@@ -49,14 +49,21 @@ class FarmAllocation {
 
   /**
    * Creates a normalized key for the allocation to ensure consistent comparison.
-   * Sorts the crop indices to treat [crop1, crop2] and [crop2, crop1] as equivalent.
+   * Sorts the crop indices and acres to treat allocations as equivalent if they have
+   * the same crops and acres, regardless of order.
    */
-  getNormalizedKey(): [[number, number], [number, number]] {
+  getNormalizedKey(): string {
     const crops = [
-      [this.crop1_index, this.crop1_acres],
-      [this.crop2_index, this.crop2_acres],
-    ].sort((a, b) => a[0] - b[0]);
-    return [crops[0] as [number, number], crops[1] as [number, number]];
+      { index: this.crop1_index, acres: this.crop1_acres },
+      { index: this.crop2_index, acres: this.crop2_acres },
+    ];
+    // Sort crops by index to normalize the order
+    crops.sort((a, b) => a.index - b.index);
+    // Create a string key representing the allocation
+    return JSON.stringify({
+      crops: [crops[0].index, crops[1].index],
+      acres: [crops[0].acres, crops[1].acres],
+    });
   }
 }
 
@@ -71,13 +78,15 @@ export class FarmPlotGA {
   private total_acres: number;       // Total available farming area
   private max_growth_time: number;   // Maximum allowed growth time for crops
   private days_per_year: number;     // Days in a year for harvest calculations
+  private cropOptions: CropOption[];  // Available crop options
 
-  constructor(population_size: number = 100, mutation_rate: number = 0.2) {
+  constructor(population_size: number = 100, mutation_rate: number = 0.2, cropOptions: CropOption[], plotSize: number, growthTime: number) {
     this.population_size = population_size;
     this.mutation_rate = mutation_rate;
-    this.total_acres = 10;           // Fixed farm size of 10 acres
-    this.max_growth_time = 260;      // Maximum 260 days growth time
+    this.total_acres = plotSize;
+    this.max_growth_time = growthTime;
     this.days_per_year = 365;
+    this.cropOptions = cropOptions;
   }
 
   /**
@@ -85,10 +94,10 @@ export class FarmPlotGA {
    * Used in creating initial population and mutations.
    */
   private generateValidCropPair(): [number, number] {
-    const crop1_index = Math.floor(Math.random() * cropOptions.length);
+    const crop1_index = Math.floor(Math.random() * this.cropOptions.length);
     let crop2_index;
     do {
-      crop2_index = Math.floor(Math.random() * cropOptions.length);
+      crop2_index = Math.floor(Math.random() * this.cropOptions.length);
     } while (crop2_index === crop1_index);
     return [crop1_index, crop2_index];
   }
@@ -102,15 +111,15 @@ export class FarmPlotGA {
     const population: FarmAllocation[] = [];
     while (population.length < this.population_size) {
       const [crop1_index, crop2_index] = this.generateValidCropPair();
-      const crop1_space = cropOptions[crop1_index].space_required;
-      const crop2_space = cropOptions[crop2_index].space_required;
-      
-      // Calculate valid acre ranges considering space requirements
-      const max_acres_crop1 = Math.min(9, this.total_acres - crop2_space);
-      const min_acres_crop1 = Math.max(1, crop1_space);
+      const crop1_space = this.cropOptions[crop1_index].space_required;
+      const crop2_space = this.cropOptions[crop2_index].space_required;
+
+      // Randomly allocate acres ensuring total acres sum to total_acres
+      const min_acres_crop1 = 1;
+      const max_acres_crop1 = this.total_acres - 1; // At least 1 acre for crop2
       const crop1_acres = Math.floor(Math.random() * (max_acres_crop1 - min_acres_crop1 + 1)) + min_acres_crop1;
       const crop2_acres = this.total_acres - crop1_acres;
-      
+
       const allocation = new FarmAllocation(crop1_index, crop2_index, crop1_acres, crop2_acres);
       if (allocation.isValid()) {
         population.push(allocation);
@@ -132,8 +141,8 @@ export class FarmPlotGA {
       return 0;
     }
 
-    const crop1 = cropOptions[allocation.crop1_index];
-    const crop2 = cropOptions[allocation.crop2_index];
+    const crop1 = this.cropOptions[allocation.crop1_index];
+    const crop2 = this.cropOptions[allocation.crop2_index];
 
     // Check constraints
     if (
@@ -145,8 +154,8 @@ export class FarmPlotGA {
     }
 
     // Calculate harvests per year for each crop
-    const harvests_per_year_crop1 = this.days_per_year / crop1.growth_time;
-    const harvests_per_year_crop2 = this.days_per_year / crop2.growth_time;
+    const harvests_per_year_crop1 = Math.floor(this.days_per_year / crop1.growth_time);
+    const harvests_per_year_crop2 = Math.floor(this.days_per_year / crop2.growth_time);
 
     // Calculate units of each crop based on space requirements
     const units_crop1 = Math.floor(allocation.crop1_acres / crop1.space_required);
@@ -175,12 +184,19 @@ export class FarmPlotGA {
    * Randomly selects a subset of solutions and returns the one with highest fitness.
    * This helps maintain diversity while still favoring better solutions.
    */
-  private tournamentSelection(population: FarmAllocation[], tournament_size: number = 5): FarmAllocation {
-    const tournament = Array.from({ length: tournament_size }, () => 
-      population[Math.floor(Math.random() * population.length)]
+  private tournamentSelection(population: FarmAllocation[], fitness_scores: number[], tournament_size: number = 5): FarmAllocation {
+    const tournament_indices = Array.from({ length: tournament_size }, () => 
+      Math.floor(Math.random() * population.length)
     );
-    const tournament_fitness = tournament.map(ind => this.calculateFitness(ind));
-    return tournament[tournament_fitness.indexOf(Math.max(...tournament_fitness))];
+    let best_index = tournament_indices[0];
+    let best_fitness = fitness_scores[best_index];
+    for (const idx of tournament_indices) {
+      if (fitness_scores[idx] > best_fitness) {
+        best_index = idx;
+        best_fitness = fitness_scores[idx];
+      }
+    }
+    return population[best_index];
   }
 
   /**
@@ -201,16 +217,16 @@ export class FarmPlotGA {
     } else {
       // Strategy 2: Mix crops and calculate new acreage
       const crop1_index = Math.random() < 0.5 ? parent1.crop1_index : parent2.crop1_index;
-      const other_crops = Array.from({ length: cropOptions.length }, (_, i) => i)
+      const other_crops = Array.from({ length: this.cropOptions.length }, (_, i) => i)
         .filter(i => i !== crop1_index);
       const crop2_index = other_crops[Math.floor(Math.random() * other_crops.length)];
-      
+
       // Average parents' acreage with small random variation
       const base_acres = Math.floor((parent1.crop1_acres + parent2.crop1_acres) / 2);
       const variation = Math.floor(Math.random() * 3) - 1;
-      const crop1_acres = Math.max(1, Math.min(9, base_acres + variation));
+      const crop1_acres = Math.max(1, Math.min(this.total_acres - 1, base_acres + variation));
       const crop2_acres = this.total_acres - crop1_acres;
-      
+
       return new FarmAllocation(crop1_index, crop2_index, crop1_acres, crop2_acres);
     }
   }
@@ -225,21 +241,21 @@ export class FarmPlotGA {
   private mutate(allocation: FarmAllocation): FarmAllocation {
     if (Math.random() < this.mutation_rate) {
       const mutation_type = Math.floor(Math.random() * 3);
-      
+
       if (mutation_type === 0) {
         // Change first crop
-        const available_crops = Array.from({ length: cropOptions.length }, (_, i) => i)
+        const available_crops = Array.from({ length: this.cropOptions.length }, (_, i) => i)
           .filter(i => i !== allocation.crop2_index);
         allocation.crop1_index = available_crops[Math.floor(Math.random() * available_crops.length)];
       } else if (mutation_type === 1) {
         // Change second crop
-        const available_crops = Array.from({ length: cropOptions.length }, (_, i) => i)
+        const available_crops = Array.from({ length: this.cropOptions.length }, (_, i) => i)
           .filter(i => i !== allocation.crop1_index);
         allocation.crop2_index = available_crops[Math.floor(Math.random() * available_crops.length)];
       } else {
         // Adjust acreage
         const shift = Math.floor(Math.random() * 5) - 2; // Random shift between -2 and +2
-        allocation.crop1_acres = Math.max(1, Math.min(9, allocation.crop1_acres + shift));
+        allocation.crop1_acres = Math.max(1, Math.min(this.total_acres - 1, allocation.crop1_acres + shift));
         allocation.crop2_acres = this.total_acres - allocation.crop1_acres;
       }
     }
@@ -249,7 +265,7 @@ export class FarmPlotGA {
   /**
    * Runs the genetic algorithm for the specified number of generations.
    * Implements elitism by keeping the best solution across generations.
-   * Returns the top 10 solutions found along with their fitness scores.
+   * Returns the top 10 unique solutions found along with their fitness scores.
    */
   public run(generations: number = 150): { solutions: FarmAllocation[], fitnessScores: number[] } {
     let population = this.generateInitialPopulation();
@@ -271,8 +287,8 @@ export class FarmPlotGA {
 
       // Fill rest of population with offspring
       while (new_population.length < this.population_size) {
-        const parent1 = this.tournamentSelection(population);
-        const parent2 = this.tournamentSelection(population);
+        const parent1 = this.tournamentSelection(population, fitness_scores);
+        const parent2 = this.tournamentSelection(population, fitness_scores);
         const child = this.crossover(parent1, parent2);
         const mutated_child = this.mutate(child);
         if (mutated_child.isValid()) {
@@ -283,8 +299,34 @@ export class FarmPlotGA {
       population = new_population;
     }
 
-    const solutions = population.slice(0, 10);
-    const fitnessScores = solutions.map(solution => this.calculateFitness(solution));
+    // Calculate fitness for all individuals
+    const final_fitness_scores = population.map(ind => this.calculateFitness(ind));
+
+    // Combine allocations with their fitness scores
+    const population_with_fitness = population.map((allocation, idx) => ({
+      allocation,
+      fitness: final_fitness_scores[idx],
+    }));
+
+    // Sort the population by fitness in descending order
+    population_with_fitness.sort((a, b) => b.fitness - a.fitness);
+
+    // Collect top unique solutions
+    const solutions: FarmAllocation[] = [];
+    const fitnessScores: number[] = [];
+    const seen_keys = new Set<string>();
+
+    for (const { allocation, fitness } of population_with_fitness) {
+      const key = allocation.getNormalizedKey();
+      if (!seen_keys.has(key)) {
+        seen_keys.add(key);
+        solutions.push(allocation);
+        fitnessScores.push(fitness);
+      }
+      if (solutions.length >= 10) {
+        break;
+      }
+    }
 
     return { solutions, fitnessScores };
   }
@@ -294,13 +336,13 @@ export class FarmPlotGA {
  * Formats a solution into a human-readable string.
  * Includes crop names, harvests per year, allocated acres, and yearly profit.
  */
-export function formatSolution(allocation: FarmAllocation, fitness: number): string {
+export function formatSolution(allocation: FarmAllocation, fitness: number, cropOptions: CropOption[]): string {
   const crop1 = cropOptions[allocation.crop1_index];
   const crop2 = cropOptions[allocation.crop2_index];
-  const harvests1 = 365 / crop1.growth_time;
-  const harvests2 = 365 / crop2.growth_time;
-  
-  return `${crop1.name} (${harvests1.toFixed(1)} colheitas/ano): ${allocation.crop1_acres} acres, ` +
-         `${crop2.name} (${harvests2.toFixed(1)} colheitas/ano): ${allocation.crop2_acres} acres = ` +
+  const harvests1 = Math.floor(365 / crop1.growth_time);
+  const harvests2 = Math.floor(365 / crop2.growth_time);
+
+  return `${crop1.name} (${harvests1} colheitas/ano): ${allocation.crop1_acres} acres, ` +
+         `${crop2.name} (${harvests2} colheitas/ano): ${allocation.crop2_acres} acres = ` +
          `${Math.floor(fitness)} lucro/ano`;
 }
