@@ -175,7 +175,7 @@ export class FarmPlotGA {
     const costs_crop1 = units_crop1 * crop1.cost * harvests_per_year_crop1;
     const costs_crop2 = units_crop2 * crop2.cost * harvests_per_year_crop2;
 
-    let total_profit = revenue_crop1 + revenue_crop2 - costs_crop1 - costs_crop2;
+    const total_profit = revenue_crop1 + revenue_crop2 - costs_crop1 - costs_crop2;
 
     // // Apply diversity bonus for using crops with different space requirements
     // if (crop1.space_required !== crop2.space_required) {
