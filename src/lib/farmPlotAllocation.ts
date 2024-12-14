@@ -366,7 +366,11 @@ export function formatSolution(allocation: FarmAllocation, fitness: number, crop
   const harvests1 = Math.floor(365 / crop1.growth_time);
   const harvests2 = Math.floor(365 / crop2.growth_time);
 
-  return `${crop1.name} (${harvests1} colheitas/ano): ${allocation.crop1_acres} acres, ` +
-         `${crop2.name} (${harvests2} colheitas/ano): ${allocation.crop2_acres} acres = ` +
-         `${Math.floor(fitness)} lucro/ano`;
+  return `Cultura 1: ${crop1.name} (${allocation.crop1_acres} acres, ${harvests1} colheitas/ano)\n` +
+         `Cultura 2: ${crop2.name} (${allocation.crop2_acres} acres, ${harvests2} colheitas/ano)\n` +
+         `Lucro Anual Estimado: ${new Intl.NumberFormat('en-US', { 
+           style: 'currency', 
+           currency: 'USD',
+           maximumFractionDigits: 0 
+         }).format(Math.floor(fitness))}`;
 }
