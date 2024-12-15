@@ -6,14 +6,17 @@
 
 Este projeto implementa um algoritmo genético para otimizar a alocação de duas culturas em uma área agrícola. O objetivo é maximizar o lucro anual considerando múltiplos fatores como tempo de crescimento, custos, rendimentos e número de colheitas possíveis por ano.
 
+Para fins de comparação e validação, também implementamos uma solução convencional usando um algoritmo guloso, demonstrando as vantagens da abordagem genética para este problema complexo de otimização.
+
 ## Características Principais
 
-- Otimização através de algoritmo genético
+- Otimização avançada através de algoritmo genético
 - Suporte para múltiplas culturas com diferentes características
 - Consideração de múltiplas colheitas por ano
 - Bônus de diversificação para combinações otimizadas
 - Visualização do progresso da evolução
 - Interface web interativa
+- Comparação com solução convencional para validação
 
 ## Parâmetros do Sistema
 
@@ -56,6 +59,20 @@ Cada cultura possui os seguintes atributos:
    - Lucro anual estimado
    - Número de colheitas por ano
 
+## Comparação dos Algoritmos
+
+### Algoritmo Genético
+- Explora múltiplas combinações através de gerações
+- Pode encontrar soluções não óbvias
+- Mais complexo e computacionalmente intensivo
+- Permite diversidade nas soluções
+
+### Algoritmo Guloso
+- Toma decisões imediatas baseadas no lucro por acre
+- Implementação mais simples e rápida
+- Pode ficar preso em ótimos locais
+- Útil como baseline para comparação
+
 ## Tecnologias Utilizadas
 
 - TypeScript
@@ -87,9 +104,10 @@ O sistema apresentará as melhores combinações no formato:
 
 ## Estrutura do Projeto
 
-- `src/lib/farmPlotAllocation.ts`: Implementação do algoritmo genético
-- `src/components/GAVisualizer.tsx`: Componente de visualização
+- `src/lib/farmPlotAllocation.ts`: Implementação principal do algoritmo genético
 - `src/app/page.tsx`: Página principal da aplicação
+- `TECHNICAL_REPORT.md`: Documentação técnica detalhada do algoritmo genético
+- `src/lib/farmPlotGreedy.ts`: Implementação de solução convencional para comparação
 
 ## Contribuindo
 
