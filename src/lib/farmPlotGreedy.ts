@@ -1,43 +1,43 @@
 import { CropOption } from './farmPlotAllocation';
 
 export class FarmPlotGreedy {
-    private total_acres: number;
-    private max_growth_time: number;
-    private days_per_year: number;
+    private totalAcres: number;
+    private maxGrowthTime: number;
+    private daysPerYear: number;
     private cropOptions: CropOption[];
 
     constructor(cropOptions: CropOption[], plotSize: number, growthTime: number) {
-        this.total_acres = plotSize;
-        this.max_growth_time = growthTime;
-        this.days_per_year = 365;
+        this.totalAcres = plotSize;
+        this.maxGrowthTime = growthTime;
+        this.daysPerYear = 365;
         this.cropOptions = cropOptions;
     }
 
     private calculateProfitPerAcre(crop: CropOption): number {
         // Skip if growth time exceeds maximum
-        if (crop.growth_time > this.max_growth_time) {
+        if (crop.growth_time > this.maxGrowthTime) {
             return 0;
         }
 
         // Calculate harvests per year
-        const harvests_per_year = Math.floor(this.days_per_year / crop.growth_time);
+        const harvestsPerYear = Math.floor(this.daysPerYear / crop.growth_time);
 
         // Calculate units per acre
-        const units_per_acre = 1 / crop.space_required;
+        const unitsPerAcre = 1 / crop.space_required;
 
         // Calculate yearly profit per acre
-        const revenue_per_acre = units_per_acre * crop.yield * harvests_per_year;
-        const cost_per_acre = units_per_acre * crop.cost * harvests_per_year;
+        const revenuePerAcre = unitsPerAcre * crop.yield * harvestsPerYear;
+        const costPerAcre = unitsPerAcre * crop.cost * harvestsPerYear;
         
-        return revenue_per_acre - cost_per_acre;
+        return revenuePerAcre - costPerAcre;
     }
 
     public findBestAllocation(): {
         crop1: CropOption;
         crop2: CropOption;
-        crop1_acres: number;
-        crop2_acres: number;
-        yearly_profit: number;
+        crop1Acres: number;
+        crop2Acres: number;
+        yearlyProfit: number;
     } {
         // Calculate profit per acre for each crop
         const cropProfits = this.cropOptions.map((crop, index) => ({
@@ -53,20 +53,20 @@ export class FarmPlotGreedy {
         const bestCrop = cropProfits[0].crop;
         const secondBestCrop = cropProfits[1].crop;
 
-        // Simple allocation: 70% to best crop, 30% to second best
-        const crop1_acres = Math.floor(this.total_acres * 0.7);
-        const crop2_acres = this.total_acres - crop1_acres;
+        // Give most land to the most profitable crop
+        const crop1Acres = this.totalAcres - 1; // Leave just 1 acre for the second crop
+        const crop2Acres = 1; // Minimum allocation for second crop
 
         // Calculate total yearly profit
-        const profit1 = this.calculateProfitPerAcre(bestCrop) * crop1_acres;
-        const profit2 = this.calculateProfitPerAcre(secondBestCrop) * crop2_acres;
+        const profit1 = this.calculateProfitPerAcre(bestCrop) * crop1Acres;
+        const profit2 = this.calculateProfitPerAcre(secondBestCrop) * crop2Acres;
 
         return {
             crop1: bestCrop,
             crop2: secondBestCrop,
-            crop1_acres,
-            crop2_acres,
-            yearly_profit: profit1 + profit2
+            crop1Acres,
+            crop2Acres,
+            yearlyProfit: profit1 + profit2
         };
     }
 }
@@ -74,18 +74,18 @@ export class FarmPlotGreedy {
 export function formatGreedySolution(solution: {
     crop1: CropOption;
     crop2: CropOption;
-    crop1_acres: number;
-    crop2_acres: number;
-    yearly_profit: number;
+    crop1Acres: number;
+    crop2Acres: number;
+    yearlyProfit: number;
 }): string {
     const harvests1 = Math.floor(365 / solution.crop1.growth_time);
     const harvests2 = Math.floor(365 / solution.crop2.growth_time);
     
-    return `Cultura 1: ${solution.crop1.name} (${solution.crop1_acres} acres, ${harvests1} colheitas/ano)\n` +
-           `Cultura 2: ${solution.crop2.name} (${solution.crop2_acres} acres, ${harvests2} colheitas/ano)\n` +
+    return `Cultura 1: ${solution.crop1.name} (${solution.crop1Acres} acres, ${harvests1} colheitas/ano)\n` +
+           `Cultura 2: ${solution.crop2.name} (${solution.crop2Acres} acres, ${harvests2} colheitas/ano)\n` +
            `Lucro Anual Estimado: ${new Intl.NumberFormat('en-US', { 
              style: 'currency', 
              currency: 'USD',
              maximumFractionDigits: 0 
-           }).format(Math.floor(solution.yearly_profit))}`;
+           }).format(Math.floor(solution.yearlyProfit))}`;
 }
