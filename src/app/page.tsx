@@ -81,58 +81,58 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen px-48 py-8 bg-gray-100">
-      <div className="mx-auto mx-48">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">
-          Otimizador de Alocação de Terreno Agrícola
+    <main className="min-h-screen px-48 py-8 bg-gradient-to-b from-green-50 to-green-100">
+      <div className="mx-auto">
+        <h1 className="text-4xl font-bold mb-8 text-green-800 text-center">
+          🌾 Otimizador de Alocação de Terreno Agrícola 🌱
         </h1>
 
         <div className='flex flex-col'>
           <div className='flex flex-col m-3'>
-            <div className="flex flex-col md:flex-row gap-4 mb-8">
+            <div className="flex flex-col md:flex-row gap-4 mb-8 bg-white p-6 rounded-lg shadow-lg border border-green-200">
               <div className="flex flex-col gap-2">
-                <label className="text-gray-800">Tamanho do terreno:</label>
-                <label className="text-gray-500 text-xs">em acres</label>
+                <label className="text-green-800 font-semibold">🗺️ Tamanho do terreno:</label>
+                <label className="text-green-600 text-xs">em acres</label>
                 <input
                   type="text"
                   value={plotSize}
                   onChange={(e) => setPlotSize(Number(e.target.value))}
-                  className="w-full p-2 rounded-lg border border-gray-200 text-gray-800"
+                  className="w-full p-2 rounded-lg border border-green-200 text-green-800 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-gray-800">Tempo de crescimento:</label>
-                <label className="text-gray-500 text-xs">em dias</label>
+                <label className="text-green-800 font-semibold">⏱️ Tempo de crescimento:</label>
+                <label className="text-green-600 text-xs">em dias</label>
                 <input
                   type="text"
                   value={growthTime}
                   onChange={(e) => setGrowthTime(Number(e.target.value))}
-                  className="w-full p-2 rounded-lg border border-gray-200 text-gray-800"
+                  className="w-full p-2 rounded-lg border border-green-200 text-green-800 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
             </div>
 
-            <div className="overflow-x-auto bg-white rounded-lg shadow-lg mb-8">
+            <div className="overflow-x-auto bg-white rounded-lg shadow-lg mb-8 border border-green-200">
               <table className="w-full table-auto">
                 <thead>
-                  <tr className="bg-blue-600 text-white">
-                    <th className="px-4 py-2">Cultura</th>
-                    <th className="px-4 py-2">Espaço (acres)</th>
-                    <th className="px-4 py-2">Custo</th>
-                    <th className="px-4 py-2">Rendimento</th>
-                    <th className="px-4 py-2">Tempo de Crescimento (dias)</th>
+                  <tr className="bg-green-700 text-white">
+                    <th className="px-4 py-2">🌱 Cultura</th>
+                    <th className="px-4 py-2">📏 Espaço (acres)</th>
+                    <th className="px-4 py-2">💰 Custo</th>
+                    <th className="px-4 py-2">📈 Rendimento</th>
+                    <th className="px-4 py-2">🕒 Tempo (dias)</th>
                     <th className="px-4 py-2">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {editableCropOptions.map((crop, index) => (
-                    <tr key={index} className="border-b hover:bg-gray-50">
+                    <tr key={index} className="border-b hover:bg-green-50">
                       <td className="px-4 py-2">
                         <input
                           type="text"
                           value={crop.name}
                           onChange={(e) => handleSaveChanges(index, { ...crop, name: e.target.value })}
-                          className="w-full p-1 border rounded text-gray-800"
+                          className="w-full p-1 border rounded text-green-800 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
                       </td>
                       <td className="px-4 py-2">
@@ -140,7 +140,7 @@ export default function Home() {
                           type="number"
                           value={crop.space_required}
                           onChange={(e) => handleSaveChanges(index, { ...crop, space_required: Number(e.target.value) })}
-                          className="w-full p-1 border rounded text-gray-800"
+                          className="w-full p-1 border rounded text-green-800 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
                       </td>
                       <td className="px-4 py-2">
@@ -148,7 +148,7 @@ export default function Home() {
                           type="number"
                           value={crop.cost}
                           onChange={(e) => handleSaveChanges(index, { ...crop, cost: Number(e.target.value) })}
-                          className="w-full p-1 border rounded text-gray-800"
+                          className="w-full p-1 border rounded text-green-800 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
                       </td>
                       <td className="px-4 py-2">
@@ -156,7 +156,7 @@ export default function Home() {
                           type="number"
                           value={crop.yield}
                           onChange={(e) => handleSaveChanges(index, { ...crop, yield: Number(e.target.value) })}
-                          className="w-full p-1 border rounded text-gray-800"
+                          className="w-full p-1 border rounded text-green-800 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
                       </td>
                       <td className="px-4 py-2">
@@ -164,7 +164,7 @@ export default function Home() {
                           type="number"
                           value={crop.growth_time}
                           onChange={(e) => handleSaveChanges(index, { ...crop, growth_time: Number(e.target.value) })}
-                          className="w-full p-1 border rounded text-gray-800"
+                          className="w-full p-1 border rounded text-green-800 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
                       </td>
                       <td className="px-4 py-2">
@@ -178,12 +178,12 @@ export default function Home() {
                     </tr>
                   ))}
                   <tr>
-                    <td colSpan={6} className="px-4 py-2 text-center text-gray-600">
+                    <td colSpan={6} className="px-4 py-2 text-center">
                       <button
                         onClick={handleAddNewCrop}
-                        className="px-4 py-2 rounded-lg text-white font-semibold bg-green-600 hover:bg-green-700 active:bg-green-800"
+                        className="px-4 py-2 rounded-lg text-white font-semibold bg-green-600 hover:bg-green-700 active:bg-green-800 transition-colors duration-150"
                       >
-                        Adicionar nova cultura
+                        🌱 Adicionar Nova Cultura
                       </button>
                     </td>
                   </tr>
@@ -191,30 +191,19 @@ export default function Home() {
               </table>
             </div>
 
-          </div>
-
-          <div className='flex flex-col m-3'>
             <button
               onClick={runAlgorithm}
               disabled={isLoading}
-              className={`
-            px-6 py-3 rounded-lg text-white font-semibold mb-8 w-full sm:w-auto
-            transition-colors duration-150
-            ${isLoading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
-                }
-          `}
+              className="w-full mb-4 px-6 py-3 rounded-lg text-white font-semibold bg-green-600 hover:bg-green-700 active:bg-green-800 disabled:bg-green-300 transition-colors duration-150 shadow-lg"
             >
-              {isLoading ? 'Executando Algoritmo...' : 'Executar Otimização'}
+              {isLoading ? '🔄 Calculando...' : '🚜 Executar Otimização'}
             </button>
 
             <div>
-
               {generationStats.length > 0 && (
-                <div className="bg-white rounded-lg p-4 my-6">
-                  <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                    Evolução do Algoritmo Genético
+                <div className="bg-white rounded-lg p-6 my-6 shadow-lg border border-green-200">
+                  <h2 className="text-xl font-semibold mb-4 text-green-800">
+                    📊 Evolução do Algoritmo Genético
                   </h2>
                   <div style={{ height: '400px' }}>
                     <ResponsiveLine
@@ -285,23 +274,22 @@ export default function Home() {
             </div>
 
             {isLoading ? (
-              <div className="text-center py-4">
-                <p>Calculando melhores alocações...</p>
+              <div className="text-center py-4 text-green-800">
+                <p>🌱 Calculando melhores alocações...</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {results.length > 0 && (
                   <div className="flex flex-col rounded-lg overflow-hidden">
-                    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-
-                      <div className="bg-blue-600 text-white px-4 py-2">
-                        <h2 className="text-xl font-bold">Resultados do Algoritmo Genético</h2>
+                    <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-green-200">
+                      <div className="bg-green-700 text-white px-4 py-2">
+                        <h2 className="text-xl font-bold">🌾 Resultados do Algoritmo Genético</h2>
                       </div>
                       <div className="p-4">
                         {results.map((result, index) => (
                           <div key={index} className="mb-4 last:mb-0">
-                            <div className="font-semibold text-gray-800 mb-1">Solução #{index + 1}</div>
-                            <pre className="bg-gray-50 p-4 rounded-lg text-gray-800 whitespace-pre-wrap border border-gray-200">
+                            <div className="font-semibold text-green-800 mb-1">Solução #{index + 1}</div>
+                            <pre className="bg-green-50 p-4 rounded-lg text-green-800 whitespace-pre-wrap border border-green-200">
                               {result}
                             </pre>
                           </div>
@@ -311,12 +299,12 @@ export default function Home() {
                   </div>
                 )}
                 {greedyResult && (
-                  <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div className="bg-blue-600 text-white px-4 py-2">
-                      <h2 className="text-xl font-bold">Resultado do Greedy Algorithm</h2>
+                  <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-green-200">
+                    <div className="bg-green-700 text-white px-4 py-2">
+                      <h2 className="text-xl font-bold">🚜 Resultado do Greedy Algorithm</h2>
                     </div>
                     <div className="p-4">
-                      <pre className="bg-gray-50 p-4 rounded-lg text-gray-800 whitespace-pre-wrap border border-gray-200">
+                      <pre className="bg-green-50 p-4 rounded-lg text-green-800 whitespace-pre-wrap border border-green-200">
                         {greedyResult}
                       </pre>
                     </div>
@@ -324,11 +312,8 @@ export default function Home() {
                 )}
               </div>
             )}
-
-
           </div>
         </div>
-
       </div>
     </main>
   );
