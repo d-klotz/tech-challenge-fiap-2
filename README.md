@@ -59,19 +59,25 @@ Cada cultura possui os seguintes atributos:
    - Lucro anual estimado
    - Número de colheitas por ano
 
-## Comparação dos Algoritmos
+## Análise Comparativa dos Algoritmos
 
-### Algoritmo Genético
-- Explora múltiplas combinações através de gerações
-- Pode encontrar soluções não óbvias
-- Mais complexo e computacionalmente intensivo
-- Permite diversidade nas soluções
+Este projeto implementa e compara duas abordagens distintas de otimização computacional aplicadas ao domínio agrícola:
+
+### Algoritmo Genético (AG)
+- **Otimização Global**: Implementa conceitos avançados de computação evolutiva para explorar o espaço de soluções de forma abrangente
+- **Aprendizado Evolutivo**: Melhora progressivamente as soluções através de gerações, aumentando a probabilidade de encontrar a melhor combinação possível
+- **Complexidade Espacial**: O(n² * A), onde n é o número de culturas e A é a área total, permitindo exploração extensiva do espaço de busca
+- **Otimização Multi-objetivo**: Utiliza função fitness sofisticada para balancear múltiplos objetivos e restrições simultaneamente
+- **Mecanismos Evolutivos**: Implementa operadores genéticos (crossover, mutação, seleção por torneio) para manter diversidade populacional e escapar de mínimos locais
 
 ### Algoritmo Guloso
-- Toma decisões imediatas baseadas no lucro por acre
-- Implementação mais simples e rápida
-- Pode ficar preso em ótimos locais
-- Útil como baseline para comparação
+- **Otimização Local**: Implementa heurística determinística baseada em decisões localmente ótimas
+- **Complexidade Temporal**: O(n log n), oferecendo performance computacional superior
+- **Solução Rápida**: Ideal para cenários onde tempo de processamento é crítico e soluções aproximadas são aceitáveis
+- **Limitações**: Susceptível a mínimos locais devido à natureza determinística do algoritmo
+
+### Conclusão Técnica
+A implementação do AG demonstra superioridade em termos de qualidade de solução e robustez matemática. O algoritmo guloso serve como baseline comparativo e alternativa eficiente para casos onde performance computacional é prioritária sobre otimalidade global.
 
 ## Tecnologias Utilizadas
 

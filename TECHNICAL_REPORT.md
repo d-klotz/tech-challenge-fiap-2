@@ -60,7 +60,6 @@ Considera:
 1. Número de colheitas por ano por cultura
 2. Rendimento total por cultura
 3. Custos totais
-4. Bônus de diversidade (10% para culturas com requisitos diferentes de espaço)
 
 Fórmula:
 ```

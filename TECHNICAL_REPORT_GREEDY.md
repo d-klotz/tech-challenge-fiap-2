@@ -98,9 +98,9 @@ Processo:
    - Resultado imediato
 
 3. **Limitações**:
-   - Não explora combinações alternativas
-   - Pode perder soluções ótimas globais
-   - Menos flexível a condições complexas
+   - O algoritmo guloso toma decisões localmente ótimas, sempre alocando a maior parte do terreno para a cultura mais lucrativa por acre
+   - Isso pode levar a uma solução sub-ótima, pois ele não considera combinações mais complexas que poderiam resultar em maior lucro total
+   - O algoritmo genético, por outro lado, explora múltiplas combinações através de gerações, podendo encontrar soluções globalmente melhores
 
 ## 7. Complexidade Computacional
 
