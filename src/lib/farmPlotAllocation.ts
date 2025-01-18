@@ -140,7 +140,6 @@ export class FarmPlotGA {
    * - Number of harvests possible per year based on growth time
    * - Revenue from crop yields
    * - Costs of planting and maintaining crops
-   * - Bonus for using crops with different space requirements (diversity bonus)
    */
   private calculateFitness(allocation: FarmAllocation): number {
     if (!allocation.isValid()) {
@@ -177,11 +176,6 @@ export class FarmPlotGA {
 
     const total_profit = revenue_crop1 + revenue_crop2 - costs_crop1 - costs_crop2;
 
-    // // Apply diversity bonus for using crops with different space requirements
-    // if (crop1.space_required !== crop2.space_required) {
-    //   total_profit *= 1.1; // 10% bonus for crop diversity
-    // }
-
     return Math.max(0, total_profit);
   }
 
@@ -212,15 +206,6 @@ export class FarmPlotGA {
    * 2. Mix crop choices and calculate new acreage based on parents
    */
   private crossover(parent1: FarmAllocation, parent2: FarmAllocation): FarmAllocation {
-    // if (Math.random() < 0.5) {
-    //   // Strategy 1: Keep crops from parent1, take acres from parent2
-    //   return new FarmAllocation(
-    //     parent1.crop1_index,
-    //     parent1.crop2_index,
-    //     parent2.crop1_acres,
-    //     parent2.crop2_acres
-    //   );
-    // } else {
       // Strategy 2: Mix crops and calculate new acreage
       const crop1_index = Math.random() < 0.5 ? parent1.crop1_index : parent2.crop1_index;
       const other_crops = Array.from({ length: this.cropOptions.length }, (_, i) => i)
@@ -234,7 +219,6 @@ export class FarmPlotGA {
       const crop2_acres = this.total_acres - crop1_acres;
 
       return new FarmAllocation(crop1_index, crop2_index, crop1_acres, crop2_acres);
-    // }
   }
 
   /**
